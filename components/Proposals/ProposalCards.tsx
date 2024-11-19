@@ -15,16 +15,18 @@ const ProposalCards = () => {
     const { data: addresses } = useDAOAddresses({
         tokenContract: TOKEN_CONTRACT,
     });
+    console.log(addresses)
     const { data: proposals } = useGetAllProposals({
         governorContract: addresses?.governor,
     });
+    console.log(proposals)
     // Filter out canceled proposals
-    const activeProposals = proposals ? proposals.filter(proposal => proposal.status !== "Closed") : [];
+    const activeProposals = proposals ? proposals.filter(proposal => proposal.status === "Active") : [];
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 ">
             {
-                activeProposals.length > 0 ? activeProposals.slice(0, 3).map((proposal, index) => (
+                proposals ? proposals.slice(0, 3).map((proposal, index) => (
                     <ProposalCard key={index} proposal={proposal} />
                 )) : [...Array(3)].map((_, index) => <ProposalCardLoading key={index} />)
             }
@@ -55,7 +57,7 @@ function ProposalCard({ proposal }: ProposalCardProps) {
     const thumbnail = extractFirstImageFromMarkdown(proposal.description) || ""
     const proposer = proposal.proposer
     const { data: ensName } = useEnsName(proposer);
-
+    console.log("yeah", proposal)
     return (
         <Link
             className="relative rounded-lg overflow-hidden shadow-lg h-full aspect-video"
@@ -78,7 +80,7 @@ function ProposalCard({ proposal }: ProposalCardProps) {
             <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-between p-4">
                 <div className="flex justify-between items-start gap-2 bg-opacity-20 tracking-wide">
                     {/* Title and Status */}
-                    <p className="text-lg text-white">{getProposalName(proposal.description)}</p>
+                    <p className="text-lg text-white">{proposal.title}</p>
                 </div>
                 <div className="flex justify-between items-center">
                     {/* Proposer Information */}
