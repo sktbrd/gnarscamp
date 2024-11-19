@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from "ethers";
-import { AbiCoder, hexDataSlice } from "ethers/lib/utils.js";
+import { AbiCoder, hexDataSlice, isHexString } from "ethers/lib/utils.js";
 import { Address } from "viem";
 import FormatedTransactionValue from "./FormatedTransactionValue";
 import TokenDataRender from "./TokenDataRender";
@@ -16,9 +16,22 @@ export function TransferTransaction({
     calldata: string;
 }) {
     const abiCoder = new AbiCoder();
-    const decodedData = abiCoder.decode(["address", "uint256"], hexDataSlice(calldata, 4));
-    const toAddress = decodedData[0] as Address;
-    const transferValue = BigInt(decodedData[1]);
+
+    // Validate calldata before decoding
+    let toAddress: Address | null = null;
+    let transferValue: bigint | null = null;
+
+    if (isHexString(calldata) && calldata.length >= 10) {
+        try {
+            const decodedData = abiCoder.decode(["address", "uint256"], hexDataSlice(calldata, 4));
+            toAddress = decodedData[0] as Address;
+            transferValue = BigInt(decodedData[1]);
+        } catch (error) {
+            console.error("Error decoding calldata:", error);
+        }
+    } else {
+        console.warn("Invalid calldata provided:", calldata);
+    }
 
     return (
         <TransactionCardWrapper title="Transfer">
@@ -28,10 +41,17 @@ export function TransferTransaction({
             </div>
             <div className="transaction-detail">
                 <span className="font-semibold">Value:</span>
-                {calldata ? (
+                {calldata && transferValue !== null ? (
                     <TokenValueRender address={target} value={transferValue} />
                 ) : (
-                    value && <span>{`${ethers.utils.formatEther(BigNumber.from(value))} ETH`}</span>
+                    value && (
+                        <span>
+                            {`${ethers.utils.formatEther(
+                                // Convert value to string before passing to BigNumber
+                                BigNumber.from(value.toString())
+                            )} ETH`}
+                        </span>
+                    )
                 )}
             </div>
             <div className="transaction-detail">

@@ -22,8 +22,23 @@ export type Proposal = {
   transactionHash: `0x${string}`;
   voteEnd: number;
   voteStart: number;
+  calldatas: string;
+  descriptionHash: `0x${string}`;
+  executableFrom: number;
+  targets: string[];
+  values: string[];
+  timeCreated: number;
+  dao: {
+    id: `0x${string}`;
+    name: string;
+  };
+  votes: {
+    voter: `0x${string}`;
+    support: number;
+    weight: number;
+    reason: string;
+  }[];
 };
-
 
 export type ProposalDetails = {
   proposer: `0x${string}`;
@@ -146,6 +161,16 @@ export const getProposals = async ({
       expiresAt: proposal.expiresAt,
       snapshotBlockNumber: proposal.snapshotBlockNumber,
       transactionHash: proposal.transactionHash,
+      calldatas: proposal.calldatas,
+      descriptionHash: proposal.descriptionHash,
+      executableFrom: proposal.executableFrom,
+      targets: proposal.targets,
+      values: proposal.values,
+      timeCreated: proposal.timeCreated,
+      dao: {
+        id: proposal.dao.id,
+        name: proposal.dao.name,
+      },
       votes: proposal.votes.map((vote: any) => ({
         voter: vote.voter,
         support: vote.support,

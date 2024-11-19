@@ -65,7 +65,7 @@ export default function ProposalComponent() {
     );
 
   const { forVotes, againstVotes, abstainVotes, voteEnd, voteStart } = proposal || {};
-
+  console.log(proposal.targets);
   const getVotePercentage = (votes: number) => {
     if (!proposal || !votes) return 0;
     const total = forVotes + againstVotes + abstainVotes;
@@ -197,25 +197,26 @@ export default function ProposalComponent() {
             {(proposal.description)}
           </ReactMarkdown>
           <div className="text-2xl font-heading text-skin-base dark:text-skin-base-dark mt-8 font-bold">Proposed Transactions</div>
-          {/* <div className="mt-4 max-w-[75vw] grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="mt-4 max-w-[75vw] grid grid-cols-1 sm:grid-cols-2 gap-4">
             {proposal.targets.map((_, index) =>
               [BASE_USDC_TOKEN_ADDRESS, BASE_SENDIT_TOKEN_ADDRESS].includes(proposal.targets[index]) ? (
                 <TransferTransaction
                   key={index}
                   target={proposal.targets[index]}
-                  value={proposal.values[index]}
+                  value={Number(proposal.values[index])}
                   calldata={proposal.calldatas[index]}
                 />
               ) : (
                 <ProposedTransactions
                   key={index}
                   target={proposal.targets[index]}
-                  value={proposal.values[index] as any}
+                  value={Number(proposal.values[index]) as any}
                   calldata={proposal.calldatas[index]}
                 />
               )
             )}
-          </div> */}
+          </div>
+
         </div>
       )}
 
