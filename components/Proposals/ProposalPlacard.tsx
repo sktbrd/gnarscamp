@@ -13,12 +13,14 @@ export const ProposalPlacard = ({
     proposalNumber: number;
     showThumbnail: boolean;
 }) => {
+    console.log(proposal);
     // Check for image in proposal description
-    const imageUrl = extractImageUrl(proposal.description);
+    const imageUrl = extractImageUrl(proposal?.description || "http://localhost:3000/logo.png");
 
     // Access votes from proposal.proposal (nested ProposalDetails)
-    const { forVotes, againstVotes, abstainVotes } = proposal.proposal;
-
+    const forVotes = proposal?.forVotes || 0;
+    const againstVotes = proposal?.againstVotes || 0;
+    const abstainVotes = proposal?.abstainVotes || 0;
     // Calculate total votes
     const totalVotes = forVotes + againstVotes + abstainVotes;
 
@@ -31,7 +33,7 @@ export const ProposalPlacard = ({
 
     return (
         <Link
-            href={`/vote/${proposal.proposalId}`}
+            href={`/vote/${proposal?.proposalId}`}
             className="flex items-center justify-between w-full bg-skin-muted hover:bg-skin-backdrop border border-skin-stroke p-4 my-6 rounded-2xl gap-4 hover:scale-[1.01]"
         >
             <div className="flex flex-col items-start pr-4 w-full">
@@ -48,7 +50,7 @@ export const ProposalPlacard = ({
                                 {proposalNumber}
                             </span>
                         )}
-                        {getProposalName(proposal.description)}
+                        {proposal?.title || getProposalName(proposal?.description)}
                     </div>
                 </div>
 

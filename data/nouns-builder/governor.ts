@@ -1,19 +1,29 @@
 import { BuilderSDK } from "@buildersdk/sdk";
 import DefaultProvider from "@/utils/DefaultProvider";
 import { BigNumber } from "ethers";
+import { SubGraphProposal } from "@/utils/query";
+import { fetchGraphQLData, NOUNSBUILD_PROPOSALS_QUERY } from "@/utils/query";
 
 const { governor } = BuilderSDK.connect({ signerOrProvider: DefaultProvider });
 
 export type Proposal = {
   proposalId: `0x${string}`;
-  targets: `0x${string}`[];
-  values: number[];
-  calldatas: `0x${string}`[];
   description: string;
-  descriptionHash: `0x${string}`;
-  proposal: ProposalDetails;
-  state: number;
+  forVotes: number;
+  againstVotes: number;
+  abstainVotes: number;
+  expiresAt: number | null;
+  proposalNumber: number;
+  proposer: `0x${string}`;
+  quorumVotes: number;
+  snapshotBlockNumber: number;
+  status: string;
+  title: string;
+  transactionHash: `0x${string}`;
+  voteEnd: number;
+  voteStart: number;
 };
+
 
 export type ProposalDetails = {
   proposer: `0x${string}`;
@@ -79,7 +89,7 @@ export const getProposalDetails = async ({
     quorumVotes,
     executed,
     canceled,
-    vetoed
+    vetoed,
   } = await governor({ address }).getProposal(proposalId);
 
   return {
@@ -98,46 +108,53 @@ export const getProposalDetails = async ({
   };
 };
 
-export const getProposals = async ({ address }: { address: `0x${string}` }) => {
-  const governorContract = governor({ address });
-  const filter = governorContract.filters.ProposalCreated(
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null
-  );
+const subgraphUrl =
+  "https://api.goldsky.com/api/public/project_clkk1ucdyf6ak38svcatie9tf/subgraphs/nouns-builder-base-mainnet/stable/gn";
 
-  const events = await governorContract.queryFilter(filter);
-  const proposalResponse = await Promise.all(
-    events.map(async (event) => {
-      const { proposalId, targets, calldatas, description, descriptionHash } =
-        event.args as any;
+export const getProposals = async ({
+  daoAddress,
+  first = 50,
+}: {
+  daoAddress: string;
+  first?: number;
+}): Promise<SubGraphProposal[]> => {
+  try {
+    const data = await fetchGraphQLData(subgraphUrl, NOUNSBUILD_PROPOSALS_QUERY, {
+      where: {
+        dao: "0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17",
+      },
+      first,
+    });
 
-      const [proposal, state] = await Promise.all([
-        getProposalDetails({ address, proposalId }),
-        getProposalState({ address, proposalId }),
-      ]);
+    if (!data || !data.proposals) {
+      throw new Error("Failed to fetch proposals from the subgraph.");
+    }
 
-      // Get from array becuase of ethers naming collision
-      const values = (event.args as any)[2];
-
-      return {
-        proposalId,
-        targets,
-        values,
-        calldatas,
-        description,
-        descriptionHash,
-        proposal,
-        state,
-      } as Proposal;
-    })
-  );
-
-  return proposalResponse.sort(
-    (a, b) => b.proposal.timeCreated - a.proposal.timeCreated
-  );
+    return data.proposals.map((proposal: any) => ({
+      proposalId: proposal.proposalId,
+      title: proposal.title,
+      proposer: proposal.proposer,
+      status: proposal.executableFrom > Date.now() / 1000 ? "Active" : "Closed",
+      description: proposal.description,
+      forVotes: proposal.forVotes,
+      againstVotes: proposal.againstVotes,
+      abstainVotes: proposal.abstainVotes,
+      proposalNumber: proposal.proposalNumber,
+      quorumVotes: proposal.quorumVotes,
+      voteStart: proposal.voteStart,
+      voteEnd: proposal.voteEnd,
+      expiresAt: proposal.expiresAt,
+      snapshotBlockNumber: proposal.snapshotBlockNumber,
+      transactionHash: proposal.transactionHash,
+      votes: proposal.votes.map((vote: any) => ({
+        voter: vote.voter,
+        support: vote.support,
+        weight: vote.weight,
+        reason: vote.reason,
+      })),
+    }));
+  } catch (error) {
+    console.error("Error fetching proposals from the subgraph:", error);
+    throw error;
+  }
 };

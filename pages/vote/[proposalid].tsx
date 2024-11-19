@@ -40,7 +40,7 @@ export default function ProposalComponent() {
     : 0;
 
   const { data: ensName } = useEnsName({
-    address: proposal?.proposal.proposer,
+    address: proposal?.proposer,
   });
 
   const { votes, loading } = useFetchProposalVotes(proposal?.proposalId || "");
@@ -64,7 +64,7 @@ export default function ProposalComponent() {
       </Layout>
     );
 
-  const { forVotes, againstVotes, abstainVotes, voteEnd, voteStart } = proposal?.proposal || {};
+  const { forVotes, againstVotes, abstainVotes, voteEnd, voteStart } = proposal || {};
 
   const getVotePercentage = (votes: number) => {
     if (!proposal || !votes) return 0;
@@ -100,17 +100,17 @@ export default function ProposalComponent() {
               <ProposalStatus proposal={proposal} />
             </div>
             <div className="mt-2 text-5xl font-heading text-skin-base font-semibold">
-              {getProposalName(proposal.description)}
+              {getProposalName(proposal.title)}
             </div>
             <div className="mt-4 text-2xl font-heading text-skin-muted dark:text-skin-muted-dark">
               Proposed by{" "}
               <Link
-                href={`${ETHERSCAN_BASEURL}/address/${proposal.proposal.proposer}`}
+                href={`${ETHERSCAN_BASEURL}/address/${proposal?.proposer}`}
                 rel="noopener noreferrer"
                 target="_blank"
                 className="text-skin-highlighted dark:text-skin-highlighted-dark underline"
               >
-                {ensName || shortenAddress(proposal.proposal.proposer)}
+                {ensName || shortenAddress(proposal?.proposer)}
               </Link>
             </div>
           </div>
@@ -151,7 +151,7 @@ export default function ProposalComponent() {
           <div className="font-heading text-xl text-skin-muted dark:text-skin-muted-dark">Threshold</div>
           <div className="text-right">
             <div className="text-skin-muted dark:text-skin-muted-dark">Current Threshold</div>
-            <div className="font-semibold">{proposal.proposal.quorumVotes || 1} Quorum</div>
+            <div className="font-semibold">{proposal?.quorumVotes || 1} Quorum</div>
           </div>
         </div>
 
@@ -194,10 +194,10 @@ export default function ProposalComponent() {
             rehypePlugins={[rehypeRaw, rehypeSanitize]}
             remarkPlugins={[remarkGfm]}
           >
-            {getProposalDescription(proposal.description)}
+            {(proposal.description)}
           </ReactMarkdown>
           <div className="text-2xl font-heading text-skin-base dark:text-skin-base-dark mt-8 font-bold">Proposed Transactions</div>
-          <div className="mt-4 max-w-[75vw] grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* <div className="mt-4 max-w-[75vw] grid grid-cols-1 sm:grid-cols-2 gap-4">
             {proposal.targets.map((_, index) =>
               [BASE_USDC_TOKEN_ADDRESS, BASE_SENDIT_TOKEN_ADDRESS].includes(proposal.targets[index]) ? (
                 <TransferTransaction
@@ -215,7 +215,7 @@ export default function ProposalComponent() {
                 />
               )
             )}
-          </div>
+          </div> */}
         </div>
       )}
 

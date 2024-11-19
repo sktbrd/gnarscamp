@@ -13,10 +13,11 @@ export const VoteButton = ({
 }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const { data: userVotes } = useUserVotes({
-        timestamp: proposal.proposal.timeCreated,
+        // TODO: review this should be proposal.timeStamp
+        timestamp: proposal.voteStart,
     });
 
-    if (proposal.state !== 1 || !userVotes || userVotes < 1) return <Fragment />;
+    // if (proposal.state !== 1 || !userVotes || userVotes < 1) return <Fragment />;
 
     return (
         <Fragment>
