@@ -4,7 +4,7 @@ import { getProposals } from "@/services/nouns-builder/governor";
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { address } = req.query;
 
-  const proposals = await getProposals({ address: address as `0x${string}` });
+  const proposals = await getProposals({ daoAddress: address as `0x${string}` });
 
   const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
   res.setHeader(

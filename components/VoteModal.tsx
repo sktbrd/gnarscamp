@@ -23,7 +23,7 @@ export default function VoteModal({
   setOpen: (value: boolean) => void;
 }) {
   const { data: userVotes } = useUserVotes({
-    timestamp: proposal.proposal.timeCreated,
+    timestamp: proposal.voteStart,
   });
   const { data: addresses } = useDAOAddresses({
     tokenContract: TOKEN_CONTRACT,

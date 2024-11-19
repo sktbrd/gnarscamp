@@ -18,9 +18,8 @@ const ProposalCards = () => {
     const { data: proposals } = useGetAllProposals({
         governorContract: addresses?.governor,
     });
-
     // Filter out canceled proposals
-    const activeProposals = proposals ? proposals.filter(proposal => proposal.state !== 2) : [];
+    const activeProposals = proposals ? proposals.filter(proposal => proposal.status !== "Closed") : [];
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 ">
@@ -54,7 +53,7 @@ function ProposalCardLoading() {
 function ProposalCard({ proposal }: ProposalCardProps) {
     const [imageLoaded, setImageLoaded] = useState(false);
     const thumbnail = extractFirstImageFromMarkdown(proposal.description) || ""
-    const proposer = proposal.proposal.proposer
+    const proposer = proposal.proposer
     const { data: ensName } = useEnsName(proposer);
 
     return (
@@ -84,7 +83,7 @@ function ProposalCard({ proposal }: ProposalCardProps) {
                 <div className="flex justify-between items-center">
                     {/* Proposer Information */}
                     <div className="flex items-center">
-                        <UserAvatar address={proposal.proposal.proposer} className="rounded-full" diameter={32} />
+                        <UserAvatar address={proposal.proposer} className="rounded-full" diameter={32} />
                         <p className="ml-2 text-sm text-white">{ensName?.ensName || shortenAddress(proposer)}</p>
                     </div>
                     <ProposalStatus proposal={proposal} />

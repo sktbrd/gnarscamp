@@ -2,58 +2,63 @@ import { Proposal } from "@/services/nouns-builder/governor";
 import { Fragment } from "react";
 
 export default function ProposalStatus({ proposal }: { proposal: Proposal }) {
-  const { state } = proposal;
+  const state = proposal.status;
 
   switch (state) {
-    case 0:
+    case "pending":
       return (
         <div className="bg-gray-100 text-gray-700 p-1 px-2 rounded-md w-24 text-center">
           Pending
         </div>
       );
-    case 1:
+    case "active":
       return (
         <div className="bg-green-100 text-green-700 p-1 px-2 rounded-md w-24 text-center">
           Active
         </div>
       );
-    case 2:
+    case "canceled":
       return (
         <div className="bg-red-100 text-red-700 p-1 px-2 rounded-md w-24 text-center">
           Canceled
         </div>
       );
-    case 3:
+    case "defeated":
       return (
         <div className="bg-red-100 text-red-700 p-1 px-2 rounded-md w-24 text-center">
           Defeated
         </div>
       );
-    case 4:
+    case "succeeded":
       return (
         <div className="bg-green-100 text-green-700 p-1 px-2 rounded-md w-24 text-center">
           Succeeded
         </div>
       );
-    case 5:
+    case "queued":
       return (
         <div className="bg-blue-100 text-blue-700 p-1 px-2 rounded-md w-24 text-center">
           Queued
         </div>
       );
-    case 6:
+    case "expired":
       return (
         <div className="bg-gray-100 text-gray-700 p-1 px-2 rounded-md w-24 text-center">
           Expired
         </div>
       );
-    case 7:
+    case "executed":
       return (
         <div className="bg-purple-100 text-purple-700 p-1 px-2 rounded-md w-24 text-center">
           Executed
         </div>
       );
-    case 8:
+    case "vetoed":
+      return (
+        <div className="bg-gray-100 text-gray-700 p-1 px-2 rounded-md w-24 text-center">
+          Vetoed
+        </div>
+      );
       return (
         <div className="bg-gray-100 text-gray-700 p-1 px-2 rounded-md w-24 text-center">
           Vetoed
