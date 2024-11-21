@@ -41,7 +41,7 @@ const { chains, provider } = configureChains(
 );
 
 const { connectors } = getDefaultWallets({
-  appName: "My RainbowKit App",
+  appName: "Gnars Pro",
   chains,
   projectId: "eecc308c3583ba79e0ba89ae9097936a",
 });

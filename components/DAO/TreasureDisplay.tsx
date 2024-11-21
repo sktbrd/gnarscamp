@@ -38,7 +38,7 @@ export const TreasureDisplay = () => {
         governorContract: addresses?.governor,
     });
     const { data: ethBalance } = useBalance({
-        address: '0x72ad986ebac0246d2b3c565ab2a1ce3a14ce6f88',
+        address: process.env.NEXT_PUBLIC_TREASURY as `0x${string}` || '0x72ad986ebac0246d2b3c565ab2a1ce3a14ce6f88',
     });
     const [ethPrice, setEthPrice] = useState<number | null>(null);
 

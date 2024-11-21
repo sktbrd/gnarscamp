@@ -10,7 +10,6 @@ import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 import { useEnsName } from "wagmi";
 import { shortenAddress } from "@/utils/shortenAddress";
-import { getProposalDescription } from "@/utils/getProposalDescription";
 import { ETHERSCAN_BASEURL } from "constants/urls";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
@@ -210,7 +209,7 @@ export default function ProposalComponent() {
                 <ProposedTransactions
                   key={index}
                   target={proposal.targets[index]}
-                  value={Number(proposal.values[index]) as any}
+                  value={proposal.values[index] as any}
                   calldata={proposal.calldatas[index]}
                 />
               )
