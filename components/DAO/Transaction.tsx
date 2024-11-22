@@ -7,6 +7,8 @@ import NFTTransferTransaction from "./Transactions/NFTTransferTransaction";
 import TransferTransaction from "./Transactions/TransferTransaction";
 import EthTransferTransaction from "./Transactions/EthTransferTransaction";
 import { USDC_ADDRESS } from "constants/addresses";
+import MintBatchTransaction from "./Transactions/MintBatchTransaction";
+import { AbiCoder } from "ethers/lib/utils.js";
 
 export function ProposedTransactions({
   target,
@@ -17,7 +19,7 @@ export function ProposedTransactions({
   value: BigInt;
   calldata: string;
 }) {
-  console.log("ProposedTransactions Value:", value);
+  console.log(value, target, calldata);
 
   // Determine the type of transaction to render
   if (calldata === "0x") {
@@ -26,6 +28,8 @@ export function ProposedTransactions({
   } else if (target === USDC_ADDRESS) {
     // Render NFTTransferTransaction for NFT transfers
     return <NFTTransferTransaction target={target} calldata={calldata} />;
+  } else if (target === "0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17") {
+    return <MintBatchTransaction target={target} calldata={calldata} />;
   } else {
     // Render TransferTransaction for other transfers
     return <TransferTransaction target={target} value={Number(value)} calldata={calldata} />;
