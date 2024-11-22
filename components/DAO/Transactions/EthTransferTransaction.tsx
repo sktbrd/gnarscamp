@@ -27,7 +27,6 @@ const EthTransferTransaction = ({
             throw new Error("Value is not a valid BigNumber, BigInt, or hex object");
         }
 
-        console.log("Parsed BigNumber Value:", bigNumberValue.toString());
     } catch (error) {
         console.error("Error parsing value:", error);
         bigNumberValue = BigNumber.from(0); // Default to 0 on error

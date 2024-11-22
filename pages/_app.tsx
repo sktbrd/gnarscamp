@@ -1,6 +1,5 @@
 import CustomConnectButton from "@/components/CustomConnectButton";
 import { useInitTheme } from "@/hooks/useInitTheme";
-import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { lightTheme, darkTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import type { AppProps } from "next/app";
 import { SWRConfig } from "swr";
@@ -13,36 +12,41 @@ import Navbar from "@/components/Navbar";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useEffect, useState } from "react";
 import { applyThemeProperties } from "../utils/applyThemeProperties";
-import { type } from "os";
-import theme, { width } from "tailwindcss/defaultTheme";
-import { json } from "stream/consumers";
 
 const fullConfig = resolveConfig(tailwindConfig);
-const bg = (fullConfig.theme?.backgroundColor as any).skin;
-const text = (fullConfig.theme?.textColor as any).skin;
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+  const [themeConfig, setThemeConfig] = useState<any>(lightTheme());
 
   useEffect(() => {
+    if (typeof window === "undefined") return; // Ensure this runs only in the browser
+
     // Initialize theme based on saved preference or system preference
     const savedTheme = localStorage.getItem("theme");
     const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const initialMode = savedTheme ? savedTheme === "dark" : prefersDarkMode;
     setIsDarkMode(initialMode);
-    applyThemeProperties(initialMode);
+    applyThemeProperties(initialMode); // Apply your CSS variables
     document.documentElement.classList.toggle("dark", initialMode);
-  }, []);
 
-  const themeConfig = isDarkMode
-    ? darkTheme({
-      accentColor: bg["muted"],
-      accentColorForeground: text["base"],
-    })
-    : lightTheme({
-      accentColor: bg["muted"],
-      accentColorForeground: text["base"],
-    });
+    // Dynamically map your Tailwind `skin` colors to RainbowKit themes
+    const getCSSVariable = (variableName: string): string => {
+      return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+    };
+
+    const config = initialMode
+      ? darkTheme({
+        accentColor: getCSSVariable("--color-button-accent") || "#C70039", // Default fallback
+        accentColorForeground: getCSSVariable("--color-text-inverted") || "#FFFFFF",
+      })
+      : lightTheme({
+        accentColor: getCSSVariable("--color-button-accent") || "#FF5733", // Default fallback
+        accentColorForeground: getCSSVariable("--color-text-base") || "#000000",
+      });
+
+    setThemeConfig(config);
+  }, []);
 
   return (
     <SWRConfig
@@ -53,23 +57,12 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
     >
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains} theme={themeConfig}>
-          <div className="bg-white dark:bg-[#0f0f0f] text-black dark:text-yellow-200 h-screen flex">
+          <div className="bg-skin-fill text-skin-base dark:bg-skin-backdrop dark:text-skin-inverted h-screen flex">
             <Navbar />
             <div id="internal-body" className="flex flex-col p-4 flex-grow h-full overflow-y-auto overflow-x-hidden">
               <div className="w-full pb-0 md:pb-4 flex justify-between gap-8">
-                {/* Search bar */}
-                {/* <div className="flex w-full max-w-[450px] bg-gray-200 dark:bg-gray-700 rounded-lg pr-2 items-center">
-                  <input
-                    type="text"
-                    className="w-full h-[34px] border-none bg-transparent text-black dark:text-white text-sm font-medium pl-4 pr-2 shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none"
-                    placeholder="Search..."
-                  />
-                  <MagnifyingGlassIcon className="text-gray-600 dark:text-gray-300" width={"18px"} />
-                </div> */}
-
-                {/* Right-aligned buttons */}
                 <div className="flex items-center gap-4 ml-auto">
-                  <CustomConnectButton className="px-6 h-10 rounded-xl border border-gray-300 dark:border-gray-600 transition ease-in-out hover:scale-110 text-sm whitespace-nowrap lg:text-lg text-black dark:text-white" />
+                  <CustomConnectButton className="px-6 h-10 rounded-xl border border-skin-stroke transition ease-in-out hover:scale-110 text-sm whitespace-nowrap lg:text-lg" />
                   <ThemeToggle />
                 </div>
               </div>
@@ -80,7 +73,6 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
       </WagmiConfig>
     </SWRConfig>
   );
-
 };
 
 export default MyApp;

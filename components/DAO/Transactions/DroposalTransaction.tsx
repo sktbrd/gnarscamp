@@ -9,7 +9,6 @@ type DroposalTransactionProps = {
 };
 
 const DroposalTransaction = ({ target, calldata }: DroposalTransactionProps) => {
-    console.log("DroposalTransaction calldata:", calldata);
 
     let decodedData: any = {};
     try {
@@ -25,8 +24,6 @@ const DroposalTransaction = ({ target, calldata }: DroposalTransactionProps) => 
 
         // Extract arguments and function name
         const { args, name } = decodedCall;
-
-        console.log("Decoded Call Args:", args);
 
         // Parse the description (args[7]) correctly
         const description = args[7];
@@ -47,7 +44,6 @@ const DroposalTransaction = ({ target, calldata }: DroposalTransactionProps) => 
             animationURI: formatURI(animationURI),
         };
 
-        console.log("Decoded Data:", decodedData);
     } catch (error) {
         console.error("Failed to decode DroposalTransaction calldata:", error);
         decodedData = null;

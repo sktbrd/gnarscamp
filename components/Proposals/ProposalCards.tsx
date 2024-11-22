@@ -15,11 +15,9 @@ const ProposalCards = () => {
     const { data: addresses } = useDAOAddresses({
         tokenContract: TOKEN_CONTRACT || "0x880fb3cf5c6cc2d7dfc13a993e839a9411200c17",
     });
-    console.log(addresses)
     const { data: proposals } = useGetAllProposals({
         governorContract: addresses?.governor || "0x3dd4e53a232b7b715c9ae455f4e732465ed71b4c",
     });
-    console.log(proposals?.map(proposal => proposal.expiresAt === null));
     // Filter out canceled proposals
     const activeProposals = proposals ? proposals.filter(proposal => proposal.status === "Active") : [];
 
