@@ -14,24 +14,21 @@ export function ProposedTransactions({
   calldata,
 }: {
   target: string;
-  value: BigInt | undefined; // Allow undefined for safety
+  value: BigInt;
   calldata: string;
 }) {
+  console.log("ProposedTransactions Value:", value);
 
+  // Determine the type of transaction to render
   if (calldata === "0x") {
-    // ETH transfers without calldata
-    return (
-      <EthTransferTransaction
-        toAddress={target as `0x${string}`}
-        value={value || BigInt(0)} // Ensure value is not undefined
-      />
-    );
+    // Render EthTransferTransaction for ETH transfers without calldata
+    return <EthTransferTransaction toAddress={target as `0x${string}`} value={value} />;
   } else if (target === USDC_ADDRESS) {
-    // Handle USDC transactions
-    return <TransferTransaction target={target} value={value || BigInt(0)} calldata={calldata} />;
+    // Render NFTTransferTransaction for NFT transfers
+    return <NFTTransferTransaction target={target} calldata={calldata} />;
   } else {
-    // Handle other transactions
-    return <TransferTransaction target={target} value={value || BigInt(0)} calldata={calldata} />;
+    // Render TransferTransaction for other transfers
+    return <TransferTransaction target={target} value={Number(value)} calldata={calldata} />;
   }
 }
 
