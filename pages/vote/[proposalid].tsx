@@ -24,6 +24,7 @@ import { useFetchProposalVotes } from "@/hooks/fetch/useFetchProposalVotes";
 import { TransferTransaction } from "@/components/DAO/Transactions/TransferTransaction";
 import ProposedTransactions from "@/components/DAO/Transaction";
 
+
 export default function ProposalComponent() {
   const { data: addresses } = useDAOAddresses({
     tokenContract: TOKEN_CONTRACT,
@@ -64,7 +65,6 @@ export default function ProposalComponent() {
     );
 
   const { forVotes, againstVotes, abstainVotes, voteEnd, voteStart } = proposal || {};
-  console.log(proposal.targets);
   const getVotePercentage = (votes: number) => {
     if (!proposal || !votes) return 0;
     const total = forVotes + againstVotes + abstainVotes;
@@ -80,6 +80,10 @@ export default function ProposalComponent() {
     const month = date.toLocaleString("default", { month: "long" });
     return `${month} ${date.getDate()}, ${date.getFullYear()}`;
   };
+  // console.log(proposal);
+  // console.log(proposal.targets);
+  // console.log(proposal.calldatas);
+  // console.log(proposal.targets.map((target) => target.toLowerCase()).includes(BASE_USDC_TOKEN_ADDRESS.toLowerCase()));
 
   return (
     <div className="max-w-[800px] mx-auto mt-4 text-skin-base">
@@ -116,7 +120,6 @@ export default function ProposalComponent() {
         </div>
         <VoteButton proposal={proposal} proposalNumber={proposalNumber} />
       </div>
-
       <div className="items-center w-full grid grid-cols-3 gap-4 mt-12">
         <div className="w-full bg-skin-muted dark:bg-skin-muted-dark border border-skin-stroke dark:border-skin-stroke-dark rounded-xl p-6">
           <ProgressBar
@@ -143,8 +146,6 @@ export default function ProposalComponent() {
           />
         </div>
       </div>
-
-
       <div className="items-center w-full grid sm:grid-cols-3 gap-4 mt-4">
         <div className="w-full border border-skin-stroke dark:border-skin-stroke-dark rounded-xl p-6 flex justify-between items-center sm:items-baseline">
           <div className="font-heading text-xl text-skin-muted dark:text-skin-muted-dark">Threshold</div>
@@ -153,7 +154,6 @@ export default function ProposalComponent() {
             <div className="font-semibold">{proposal?.quorumVotes || 1} Quorum</div>
           </div>
         </div>
-
         <div className="w-full border border-skin-stroke dark:border-skin-stroke-dark rounded-xl p-6 flex justify-between items-center sm:items-baseline">
           <div className="font-heading text-xl text-skin-muted dark:text-skin-muted-dark">Ends</div>
           <div className="text-right">
@@ -170,7 +170,6 @@ export default function ProposalComponent() {
           </div>
         </div>
       </div>
-
       <div className="mt-8 flex gap-4 justify-center">
         <div
           onClick={() => setSelectedTab("Description")}
@@ -197,25 +196,46 @@ export default function ProposalComponent() {
           </ReactMarkdown>
           <div className="text-2xl font-heading text-skin-base dark:text-skin-base-dark mt-8 font-bold">Proposed Transactions</div>
           <div className="mt-4 max-w-[75vw] grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {proposal.targets.map((_, index) =>
-              [BASE_USDC_TOKEN_ADDRESS, BASE_SENDIT_TOKEN_ADDRESS].includes(proposal.targets[index]) ? (
-                <TransferTransaction
-                  key={index}
-                  target={proposal.targets[index]}
-                  value={Number(proposal.values[index])}
-                  calldata={proposal.calldatas[index]}
-                />
-              ) : (
+            {proposal.targets.map((target, index) => {
+              const normalizedTarget = target.toLowerCase();
+              const isBaseToken = [BASE_USDC_TOKEN_ADDRESS, BASE_SENDIT_TOKEN_ADDRESS].some(
+                (address) => address.toLowerCase() === normalizedTarget
+              );
+
+              // Split the single calldata string into an array
+              const calldataArray = proposal.calldatas.split(':'); // Assuming ':' is the delimiter
+              const calldata = calldataArray[index] || "0x"; // Safely access calldata
+
+              // Safely get value
+              const value = proposal.values && proposal.values[index] ? BigInt(proposal.values[index]) : BigInt(0);
+
+              if (isBaseToken) {
+                return (
+                  <TransferTransaction
+                    key={index}
+                    target={target}
+                    value={null} // Token transactions use calldata for value
+                    calldata={calldata}
+                  />
+                );
+              }
+
+              return (
                 <ProposedTransactions
                   key={index}
-                  target={proposal.targets[index]}
-                  value={proposal.values[index] as any}
-                  calldata={proposal.calldatas[index]}
+                  target={target}
+                  value={value}
+                  calldata={calldata}
                 />
-              )
-            )}
-          </div>
+              );
+            })}
 
+
+
+
+
+
+          </div>
         </div>
       )}
 
@@ -224,7 +244,6 @@ export default function ProposalComponent() {
           <VoteList proposal={{ ...proposal, votes } as unknown as SubGraphProposal} />
         </div>
       )}
-
       <Link
         href="/vote"
         className="mt-4 flex w-fit gap-2 px-4 items-center border border-skin-stroke hover:bg-skin-muted dark:hover:bg-skin-muted-dark rounded-full p-2 mr-4"

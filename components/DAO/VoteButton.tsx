@@ -33,7 +33,7 @@ export const VoteButton = ({
                 />
             </ModalWrapper>
             <button
-                className="bg-skin-button-accent text-skin-inverted rounded-xl px-4 py-3 font-semibold w-full sm:w-auto mt-8 sm:mt-0"
+                className="bg-skin-button-accent text-skin-inverted rounded-xl px-4 py-3 font-semibold w-full sm:w-auto mt-8 sm:mt-0 border border-black min-w-36"
                 onClick={() => setModalOpen(true)}
             >
                 Submit vote

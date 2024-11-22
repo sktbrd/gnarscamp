@@ -6,18 +6,8 @@ import TokenDataRender from "./TokenDataRender";
 import TokenValueRender from "./TokenValueRender";
 import TransactionCardWrapper from "./TransactionCardWrapper";
 
-export function TransferTransaction({
-    target,
-    value,
-    calldata,
-}: {
-    target: string;
-    value: number;
-    calldata: string;
-}) {
+export function TransferTransaction({ target, value, calldata }: { target: string; value: any; calldata: string; }) {
     const abiCoder = new AbiCoder();
-
-    // Validate calldata before decoding
     let toAddress: Address | null = null;
     let transferValue: bigint | null = null;
 
@@ -41,17 +31,14 @@ export function TransferTransaction({
             </div>
             <div className="transaction-detail">
                 <span className="font-semibold">Value:</span>
-                {calldata && transferValue !== null ? (
+                {transferValue !== null ? (
                     <TokenValueRender address={target} value={transferValue} />
+                ) : value ? (
+                    <span>
+                        {`${ethers.utils.formatEther(BigNumber.from(value.toString()))} ETH`}
+                    </span>
                 ) : (
-                    value && (
-                        <span>
-                            {`${ethers.utils.formatEther(
-                                // Convert value to string before passing to BigNumber
-                                BigNumber.from(value.toString())
-                            )} ETH`}
-                        </span>
-                    )
+                    <span>N/A</span>
                 )}
             </div>
             <div className="transaction-detail">
@@ -65,5 +52,6 @@ export function TransferTransaction({
         </TransactionCardWrapper>
     );
 }
+
 
 export default TransferTransaction;

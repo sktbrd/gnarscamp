@@ -13,7 +13,6 @@ export const ProposalPlacard = ({
     proposalNumber: number;
     showThumbnail: boolean;
 }) => {
-    console.log(proposal);
     // Check for image in proposal description
     const imageUrl = extractImageUrl(proposal?.description || "http://localhost:3000/logo.png");
 
