@@ -7,12 +7,31 @@ const EthTransferTransaction = ({
     value,
 }: {
     toAddress: `0x${string}`;
-    value: BigInt | { hex: string; type: string };
+    value: BigInt | { hex: string } | undefined; // Support BigInt and hex
 }) => {
-    // Determine the BigNumber value from `value`
-    const bigNumberValue = BigNumber.isBigNumber(value)
-        ? value
-        : BigNumber.from((value as { hex: string }).hex);
+    // Parse the `value` safely
+    let bigNumberValue: BigNumber;
+
+    try {
+        if (value === undefined) {
+            throw new Error("Value is undefined");
+        }
+        // Check if value is already a BigNumber or BigInt
+        if (BigNumber.isBigNumber(value)) {
+            bigNumberValue = value;
+        } else if (typeof value === "bigint") {
+            bigNumberValue = BigNumber.from(value.toString()); // Convert BigInt to BigNumber
+        } else if (typeof value === "object" && "hex" in value) {
+            bigNumberValue = BigNumber.from(value.hex); // Use hex representation
+        } else {
+            throw new Error("Value is not a valid BigNumber, BigInt, or hex object");
+        }
+
+        console.log("Parsed BigNumber Value:", bigNumberValue.toString());
+    } catch (error) {
+        console.error("Error parsing value:", error);
+        bigNumberValue = BigNumber.from(0); // Default to 0 on error
+    }
 
     return (
         <TransactionCardWrapper title="Ethereum Transfer">
