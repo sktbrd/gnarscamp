@@ -3,7 +3,6 @@ import { BASE_USDC_TOKEN_ADDRESS, BASE_SENDIT_TOKEN_ADDRESS } from "constants/gn
 
 const TokenValueRender = ({ address, value }: { address: string; value: bigint }) => {
     if (address === BASE_USDC_TOKEN_ADDRESS.toLocaleLowerCase()) {
-        console.log("USDC Token detected");
         // USDC has 6 decimals
         return (
             <div className="flex items-center gap-1">
