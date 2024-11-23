@@ -195,18 +195,15 @@ export default function ProposalComponent() {
             {(proposal.description)}
           </ReactMarkdown>
           <div className="text-2xl font-heading text-skin-base dark:text-skin-base-dark mt-8 font-bold">Proposed Transactions</div>
-          <div className="mt-4 max-w-[75vw] grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             {proposal.targets.map((target, index) => {
               const normalizedTarget = target.toLowerCase();
               const isBaseToken = [BASE_USDC_TOKEN_ADDRESS, BASE_SENDIT_TOKEN_ADDRESS].some(
                 (address) => address.toLowerCase() === normalizedTarget
               );
 
-              // Split the single calldata string into an array
-              const calldataArray = proposal.calldatas.split(':'); // Assuming ':' is the delimiter
+              const calldataArray = proposal.calldatas.split(":"); // Assuming ":" is the delimiter
               const calldata = calldataArray[index] || "0x"; // Safely access calldata
-
-              // Safely get value
               const value = proposal.values && proposal.values[index] ? BigInt(proposal.values[index]) : BigInt(0);
 
               if (isBaseToken) {
@@ -229,13 +226,8 @@ export default function ProposalComponent() {
                 />
               );
             })}
-
-
-
-
-
-
           </div>
+
         </div>
       )}
 
