@@ -3,12 +3,10 @@
 import Layout from "@/components/Layout";
 import Link from "next/link";
 import TransactionList from "@/components/Transactions/TransactionList";
-import HTMLTextEditor from "@/components/HTMLTextEditor";
+import MarkdownEditor from "@/components/MarkdownEditor";
 import SubmitButton, { FormTransaction } from "@/components/SubmitButton";
 import { Formik, Form, Field } from "formik";
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
-import { Transaction } from "ethers";
-import { title } from "process";
 import { useState, useEffect } from "react";
 
 export interface Values {
@@ -47,19 +45,20 @@ export default function Create() {
 
           <Formik
             initialValues={initialValues}
-            onSubmit={() => { }}
+            onSubmit={(values) => {
+              console.log("Submitted Proposal", values); // Replace with API call
+            }}
           >
-            {({ values }) => (
+            {({ values, setFieldValue }) => ( // <-- Destructure setFieldValue here
               <Form className="mt-6 flex flex-col w-full">
                 <label className="relative text-md font-heading text-skin-base">
-                  Proposal title
+                  Proposal Title
                 </label>
 
                 <Field
                   name="title"
                   type="text"
-                  // placeholder="My New Proposal"
-                  className="bg-skin-muted text-skin-base placeholder:text-skin-muted px-3 py-3 rounded-lg w-full text-md mt-2 border-amber-400 border "
+                  className="bg-skin-muted text-skin-base placeholder:text-skin-muted px-3 py-3 rounded-lg w-full text-md mt-2 border-amber-400 border"
                 />
 
                 <label className="relative text-md font-heading text-skin-base mt-6">
@@ -72,8 +71,10 @@ export default function Create() {
                   Summary
                 </label>
 
-                <HTMLTextEditor />
-
+                <MarkdownEditor
+                  value={values.summary}
+                  onChange={(markdown) => setFieldValue("summary", markdown)} // Update the summary field
+                />
                 <SubmitButton />
               </Form>
             )}

@@ -20,6 +20,7 @@
     "@mantine/rte": "^5.10.0",
     "@rainbow-me/rainbowkit": "^0.12.15",
     "@tailwindcss/typography": "^0.5.8",
+    "@toast-ui/react-editor": "^3.2.3",
     "@types/node": "18.11.9",
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.9",
