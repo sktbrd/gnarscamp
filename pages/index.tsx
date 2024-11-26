@@ -13,7 +13,7 @@ import {
 } from "data/nouns-builder/token";
 import { promises as fs } from "fs";
 import { useIsMounted } from "hooks/useIsMounted";
-import { GetStaticPropsResult, InferGetStaticPropsType } from "next";
+import { InferGetServerSidePropsType } from "next";
 import { MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import path from "path";
@@ -22,20 +22,10 @@ import { SWRConfig } from "swr";
 
 type MarkdownSource = MDXRemoteSerializeResult<Record<string, unknown>>;
 
-export const getStaticProps = async (): Promise<
-  GetStaticPropsResult<{
-    tokenContract: string;
-    tokenId: string;
-    contract: ContractInfo;
-    token: TokenInfo;
-    auction: AuctionInfo;
-    descriptionSource: MarkdownSource;
-    faqSources: MarkdownSource[];
-  }>
-> => {
+export const getServerSideProps = async () => {
   const addresses = DAO_ADDRESS;
 
-  console.log(addresses.nft)
+  console.log(addresses.nft);
 
   const [contract, auction] = await Promise.all([
     getContractInfo({ address: addresses.nft }),
@@ -93,8 +83,8 @@ export const getStaticProps = async (): Promise<
       auction,
       descriptionSource: descMD,
       faqSources,
+      revalidate: 60,
     },
-    revalidate: 60,
   };
 };
 
@@ -106,7 +96,7 @@ export default function SiteComponent({
   auction,
   descriptionSource,
   faqSources,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const isMounted = useIsMounted();
 
   if (!isMounted) return <Fragment />;
@@ -128,15 +118,18 @@ export default function SiteComponent({
             <Hero />
           </div>
         </div>
-        <span className="text-xl lg:text-3xl mt-8 mb-2 font-heading text-skin-highlighted">Proposals</span>
+        <span className="text-xl lg:text-3xl mt-8 mb-2 font-heading text-skin-highlighted">
+          Proposals
+        </span>
         <ProposalCards />
-        <span className="text-xl lg:text-3xl mt-8 mb-2 font-heading text-skin-highlighted">Propdates and News</span>
+        <span className="text-xl lg:text-3xl mt-8 mb-2 font-heading text-skin-highlighted">
+          Propdates and News
+        </span>
         <NewsCard />
       </div>
     </SWRConfig>
   );
 }
-
 
 const IframeLoader = ({ src }: { src: string }) => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -149,7 +142,13 @@ const IframeLoader = ({ src }: { src: string }) => {
   const iframeSrc = isDarkMode ? `${src}&theme=dark` : src;
 
   return (
-    <div className={`col-span-1 rounded-xl h-[400px] 2xl:h-auto relative ${isLoaded ? "bg-skin-fill dark:bg-black" : "border border-skin-stroke dark:border-gray-800 rounded-xl"}`}>
+    <div
+      className={`col-span-1 rounded-xl h-[400px] 2xl:h-auto relative ${
+        isLoaded
+          ? "bg-skin-fill dark:bg-black"
+          : "border border-skin-stroke dark:border-gray-800 rounded-xl"
+      }`}
+    >
       {!isLoaded && (
         <div className="absolute inset-0 flex justify-center items-center bg-skin-fill dark:bg-black opacity-75">
           <Loading />
@@ -167,5 +166,3 @@ const IframeLoader = ({ src }: { src: string }) => {
     </div>
   );
 };
-
-
