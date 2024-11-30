@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { shortenAddress } from "@/utils/shortenAddress";
-import useEnsName from "@/hooks/fetch/useEnsName";
-import useEnsAvatar from "@/hooks/fetch/useEnsAvatar";
+import useNnsName from "@/hooks/fetch/useEnsName";
+import { Address } from "viem";
 
 interface VoteListProps {
     proposal: Pick<SubGraphProposal, "proposalId" | "votes" | "forVotes" | "againstVotes" | "abstainVotes">;
@@ -44,20 +44,16 @@ const VoteItem = ({
     reason: string;
     totalWeight: number;
 }) => {
-    const { data: ensNameData } = useEnsName(voter as `0x${string}`);
-    const ensName = ensNameData?.ensName;
-    const displayName = ensName || shortenAddress(voter);
-
-    const { data: ensAvatarData } = useEnsAvatar(voter as `0x${string}`);
-    const ensAvatar = ensAvatarData?.ensAvatar;
+    const { data: nnsName } = useNnsName(voter as Address); // Fetch NNS name
+    const displayName = nnsName || shortenAddress(voter);
 
     const votePercentage = totalWeight > 0 ? ((weight / totalWeight) * 100).toFixed(2) : "0.00";
 
     return (
         <div className="flex mb-4 p-4 pt-3 border !border-opacity-10 rounded-md items-center group">
             <img
-                src={ensAvatar || "/default_user.png"}
-                alt="ENS Avatar"
+                src="/default_user.png" // No avatar handling for NNS names yet
+                alt="Avatar"
                 className="w-8 h-8 rounded-full mr-2 place-self-start"
             />
             <div className="w-full">
@@ -68,13 +64,15 @@ const VoteItem = ({
                         className={`ml-1 ${support === "FOR"
                             ? "text-green-500"
                             : support === "AGAINST"
-                            ? "text-red-500"
-                            : "text-gray-500"
+                                ? "text-red-500"
+                                : "text-gray-500"
                             }`}
                     >
                         {support}
                     </span>
-                    <span className="ml-1">with<span className="text-blue-400 mx-1">{weight}</span>votes</span>
+                    <span className="ml-1">
+                        with<span className="text-blue-400 mx-1">{weight}</span>votes
+                    </span>
                     <span className="ml-1 text-blue-500 hidden group-hover:block">({votePercentage}%)</span>
                 </div>
                 {reason && (
@@ -99,9 +97,9 @@ const VoteList = ({ proposal }: VoteListProps) => {
         <div>
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">Votes</h2>
-                <select 
-                    value={filter} 
-                    onChange={(e) => setFilter(e.target.value)} 
+                <select
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
                     className="border rounded px-2 py-1 text-center focus:outline-none"
                 >
                     {supportOptions.map(option => (

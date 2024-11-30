@@ -1,7 +1,6 @@
 import { useDAOAddresses, useGetAllProposals } from "@/hooks/fetch";
-import useEnsName from "@/hooks/fetch/useEnsName";
+import useNnsName from "@/hooks/fetch/useEnsName";
 import { Proposal } from "@/services/nouns-builder/governor";
-import { getProposalName } from "@/utils/getProposalName";
 import { shortenAddress } from "@/utils/shortenAddress";
 import { TOKEN_CONTRACT } from "constants/addresses";
 import Image from "next/image";
@@ -22,12 +21,12 @@ const ProposalCards = () => {
     const activeProposals = proposals ? proposals.filter(proposal => proposal.status === "Active") : [];
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 ">
-            {
-                proposals ? proposals.slice(0, 3).map((proposal, index) => (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {proposals
+                ? proposals.slice(0, 3).map((proposal, index) => (
                     <ProposalCard key={index} proposal={proposal} />
-                )) : [...Array(3)].map((_, index) => <ProposalCardLoading key={index} />)
-            }
+                ))
+                : [...Array(3)].map((_, index) => <ProposalCardLoading key={index} />)}
         </div>
     );
 };
@@ -39,22 +38,25 @@ function extractFirstImageFromMarkdown(markdown: string) {
 }
 
 interface ProposalCardProps {
-    proposal: Proposal
+    proposal: Proposal;
 }
 
 function ProposalCardLoading() {
-    return <div className="relative rounded-lg overflow-hidden h-full aspect-video border border-zinc-200">
-        <div className={`absolute inset-0 flex justify-center items-center`}>
-            <Loading />
+    return (
+        <div className="relative rounded-lg overflow-hidden h-full aspect-video border border-zinc-200">
+            <div className={`absolute inset-0 flex justify-center items-center`}>
+                <Loading />
+            </div>
         </div>
-    </div>
+    );
 }
 
 function ProposalCard({ proposal }: ProposalCardProps) {
     const [imageLoaded, setImageLoaded] = useState(false);
-    const thumbnail = extractFirstImageFromMarkdown(proposal.description) || ""
-    const proposer = proposal.proposer
-    const { data: ensName } = useEnsName(proposer);
+    const thumbnail = extractFirstImageFromMarkdown(proposal.description) || "";
+    const proposer = proposal.proposer;
+    const { data: nnsName } = useNnsName(proposer); // Updated hook for NNS name resolution
+
     return (
         <Link
             className="relative rounded-lg overflow-hidden shadow-lg h-full aspect-video"
@@ -83,12 +85,15 @@ function ProposalCard({ proposal }: ProposalCardProps) {
                     {/* Proposer Information */}
                     <div className="flex items-center">
                         <UserAvatar address={proposal.proposer} className="rounded-full" diameter={32} />
-                        <p className="ml-2 text-sm text-white">{ensName?.ensName || shortenAddress(proposer)}</p>
+                        <p className="ml-2 text-sm text-white">
+                            {nnsName || shortenAddress(proposer)}
+                        </p>
                     </div>
                     <ProposalStatus proposal={proposal} />
                 </div>
             </div>
-        </Link>)
+        </Link>
+    );
 }
 
 export default ProposalCards;
