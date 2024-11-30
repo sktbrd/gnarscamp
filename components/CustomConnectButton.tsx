@@ -1,5 +1,7 @@
 import { useTheme } from "@/hooks/useTheme";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import React, { useState } from "react";
+import { fetchNnsName } from "@/utils/fetchNNS";
 
 export type CustomConnectButtonProps = {
   className: string;
@@ -7,6 +9,7 @@ export type CustomConnectButtonProps = {
 
 const CustomConnectButton = ({ className }: CustomConnectButtonProps) => {
   const [theme] = useTheme();
+  const [nnsName, setNnsName] = useState<string | null>(null);
 
   return (
     <ConnectButton.Custom>
@@ -18,6 +21,11 @@ const CustomConnectButton = ({ className }: CustomConnectButtonProps) => {
         openConnectModal,
         mounted,
       }) => {
+        // Fetch the NNS name dynamically when account changes
+        if (account?.address && account.address.startsWith("0x") && !nnsName) {
+          fetchNnsName(account.address).then((name) => setNnsName(name));
+        }
+
         return (
           <div
             {...(!mounted && {
@@ -53,13 +61,14 @@ const CustomConnectButton = ({ className }: CustomConnectButtonProps) => {
                   </button>
                 );
               }
+
               return (
                 <button
                   className={className}
                   onClick={openAccountModal}
                   type="button"
                 >
-                  {account.displayName}
+                  {nnsName || account.displayName} {/* Show NNS name or fallback */}
                 </button>
               );
             })()}
